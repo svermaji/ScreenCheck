@@ -1,2 +1,2 @@
-rem taskkill /IM chrome.exe
-shutdown /s
+call close-chrome.bat
+call bye.bat
