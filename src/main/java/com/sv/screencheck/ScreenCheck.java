@@ -31,11 +31,10 @@ public class ScreenCheck {
 
     private String prepareFileString() {
         long currentM = getCurrentMillis();
-        long result = currentM - lastModifiedTime;
-        long min = convertToMin(result);
+        long min = convertToMin(currentM - lastModifiedTime);
 
-        logger.log(String.format("CurrentTimeMilli = %s, lastModifiedTime = %s, result = %s, min = %s, oldTimeInMin+min = %s",
-                getDateForLong(currentM), getDateForLong(lastModifiedTime), result, min, (oldTimeInMin + min)));
+        logger.log(String.format("CurrentTimeMilli = %s, lastModifiedTime = %s, result in min = %s, oldTimeInMin+min = %s",
+                getDateForLong(currentM), getDateForLong(lastModifiedTime), min, (oldTimeInMin + min)));
 
         return prepareFileString(oldTimeInMin + min);
     }
@@ -51,7 +50,7 @@ public class ScreenCheck {
     }
 
     private String getDateForLong(long val) {
-        return val + ", as date " + new Date(val);
+        return val + " [" + new Date(val) + "]";
     }
 
     public void init() {
