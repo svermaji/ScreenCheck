@@ -1,5 +1,6 @@
 package com.sv.screencheck;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Timer;
@@ -131,12 +132,11 @@ public class ScreenCheck {
     }
 
     private void showShutDownScreen() {
-        /*JFrame frame = new JFrame();
+        JFrame frame = new JFrame();
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(true);
         frame.setVisible(true);
-        frame.setAlwaysOnTop(true);*/
-        System.out.println("SHUTDOWN");
+        frame.setAlwaysOnTop(true);
     }
 
     public String getAllowedHours() {
@@ -157,7 +157,6 @@ public class ScreenCheck {
         }
 
         return prepareFileString();
-//        return configs.getConfig(DefaultConfigs.Config.STATE);
     }
 
 }
