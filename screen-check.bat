@@ -1,2 +1,2 @@
-rem call close-chrome.bat
-rem call bye.bat
+call close-chrome.bat
+call bye.bat
