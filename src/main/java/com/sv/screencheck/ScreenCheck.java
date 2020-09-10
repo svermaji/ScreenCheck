@@ -93,6 +93,9 @@ public class ScreenCheck {
             reset = true;
         }
         saveConfig();
+        if (reset) {
+            oldTimeInMin = 0;
+        }
         logger.log("Reset required: " + reset);
 
         if (oldTimeInMin >= convertHoursToMin(DefaultConfigs.Config.ALLOWED_HOURS)) {

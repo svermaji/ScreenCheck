@@ -1,2 +1,3 @@
-call close-chrome.bat
-call bye.bat
+rem call close-chrome.bat
+rem call bye.bat
+call pa.bat
