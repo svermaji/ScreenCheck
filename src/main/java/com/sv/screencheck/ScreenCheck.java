@@ -94,6 +94,7 @@ public class ScreenCheck {
         }
         saveConfig();
         if (reset) {
+	        logger.log("Resetting oldTimeInMin to 0");
             oldTimeInMin = 0;
         }
         logger.log("Reset required: " + reset);
