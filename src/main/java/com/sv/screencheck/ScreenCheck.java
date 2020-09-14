@@ -99,7 +99,7 @@ public class ScreenCheck {
         }
         logger.log("Reset required: " + reset);
 
-        if (oldTimeInMin >= convertHoursToMin(DefaultConfigs.Config.ALLOWED_HOURS)) {
+        if (oldTimeInMin >= convertToLong(DefaultConfigs.Config.ALLOWED_MIN)) {
             logger.log("Shutdown required: true");
             showShutDownScreen();
             runExitCommand();
@@ -127,7 +127,7 @@ public class ScreenCheck {
     private void runExitCommand() {
         try {
             logger.log("Running screen check batch file");
-            Runtime.getRuntime().exec("screen-check.bat");
+            Runtime.getRuntime().exec("screen-check1.bat");
         } catch (IOException e) {
             logger.error(e);
         }
@@ -142,8 +142,8 @@ public class ScreenCheck {
         frame.setAlwaysOnTop(true);
     }
 
-    public String getAllowedHours() {
-        return configs.getConfig(DefaultConfigs.Config.ALLOWED_HOURS);
+    public String getAllowedMin() {
+        return configs.getConfig(DefaultConfigs.Config.ALLOWED_MIN);
     }
 
     public String getRewriteHours() {

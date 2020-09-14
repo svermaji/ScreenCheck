@@ -14,7 +14,7 @@ public class DefaultConfigs {
     private URL propUrl;
 
     enum Config {
-        ALLOWED_HOURS("AllowedHours"),
+        ALLOWED_MIN("AllowedMin"),
         REWRITE_HOURS("RewriteHours"),
         TIMER_MIN("TimerMin"),
         STATE("State");
