@@ -127,7 +127,7 @@ public class ScreenCheck {
     private void runExitCommand() {
         try {
             logger.log("Running screen check batch file");
-            Runtime.getRuntime().exec("screen-check1.bat");
+            Runtime.getRuntime().exec("screen-check.bat");
         } catch (IOException e) {
             logger.error(e);
         }
