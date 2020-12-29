@@ -1,5 +1,9 @@
 package com.sv.screencheck;
 
+import com.sv.core.Utils;
+import com.sv.core.config.DefaultConfigs;
+import com.sv.core.logger.MyLogger;
+
 import javax.swing.*;
 import java.io.IOException;
 import java.util.Date;
@@ -7,7 +11,13 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
+import static com.sv.core.Constants.*;
+
 public class ScreenCheck {
+
+    enum Configs {
+        AllowedMin, RewriteHours, TimerMin, State
+    }
 
     private final MyLogger logger;
     private final DefaultConfigs configs;
@@ -24,7 +34,7 @@ public class ScreenCheck {
 
     private ScreenCheck() {
         logger = MyLogger.createLogger("screen-check.log");
-        configs = new DefaultConfigs(logger);
+        configs = new DefaultConfigs(logger, Utils.getConfigsAsArr(Configs.class));
         init();
         startTimer(this);
     }
@@ -42,7 +52,7 @@ public class ScreenCheck {
     private String prepareFileString(long result) {
         return new StringBuilder().append("oldTime:")
                 .append(result)
-                .append(Utils.SEMICOLON).append("lastModified:").append(getCurrentMillis()).toString();
+                .append(SEMI_COLON).append("lastModified:").append(getCurrentMillis()).toString();
     }
 
     private void saveConfig() {
@@ -60,10 +70,10 @@ public class ScreenCheck {
     }
 
     private void readStateConfig() {
-        String state = configs.getConfig(DefaultConfigs.Config.STATE);
+        String state = configs.getConfig(Configs.State.name());
         String[] vals = state.split(";");
-        oldTimeInMin = convertToLong(vals[0].split(Utils.COLON)[1]);
-        lastModifiedTime = convertToLong(vals[1].split(Utils.COLON)[1]);
+        oldTimeInMin = convertToLong(vals[0].split(COLON)[1]);
+        lastModifiedTime = convertToLong(vals[1].split(COLON)[1]);
     }
 
     private void resetVars() {
@@ -71,7 +81,7 @@ public class ScreenCheck {
     }
 
     private void startTimer(ScreenCheck screenCheck) {
-        long timer_min = TimeUnit.MINUTES.toMillis(convertToLong(DefaultConfigs.Config.TIMER_MIN));
+        long timer_min = TimeUnit.MINUTES.toMillis(configs.getIntConfig(Configs.TimerMin.name()));
 
         TIMER.schedule(new TimerTask() {
             @Override
@@ -89,7 +99,7 @@ public class ScreenCheck {
     private void shutDownRequired() {
         long l = convertToMin(getCurrentMillis() - lastModifiedTime);
         logger.log("Time spent since last modified in min is " + l);
-        if (l >= convertHoursToMin(DefaultConfigs.Config.REWRITE_HOURS)) {
+        if (l >= convertHoursToMin(Configs.RewriteHours)) {
             reset = true;
         }
         saveConfig();
@@ -99,7 +109,7 @@ public class ScreenCheck {
         }
         logger.log("Reset required: " + reset);
 
-        if (oldTimeInMin >= convertToLong(DefaultConfigs.Config.ALLOWED_MIN)) {
+        if (oldTimeInMin >= convertToLong(Configs.AllowedMin)) {
             logger.log("Shutdown required: true");
             showShutDownScreen();
             runExitCommand();
@@ -112,12 +122,12 @@ public class ScreenCheck {
         return TimeUnit.MILLISECONDS.toMinutes(millis);
     }
 
-    private long convertHoursToMin(DefaultConfigs.Config config) {
+    private long convertHoursToMin(Configs config) {
         return TimeUnit.HOURS.toMinutes(convertToLong(config));
     }
 
-    private long convertToLong(DefaultConfigs.Config config) {
-        return convertToLong(configs.getConfig(config));
+    private long convertToLong(Configs config) {
+        return convertToLong(config);
     }
 
     private long convertToLong(String str) {
@@ -143,15 +153,15 @@ public class ScreenCheck {
     }
 
     public String getAllowedMin() {
-        return configs.getConfig(DefaultConfigs.Config.ALLOWED_MIN);
+        return configs.getConfig(Configs.AllowedMin.name());
     }
 
     public String getRewriteHours() {
-        return configs.getConfig(DefaultConfigs.Config.REWRITE_HOURS);
+        return configs.getConfig(Configs.RewriteHours.name());
     }
 
     public String getTimerMin() {
-        return configs.getConfig(DefaultConfigs.Config.TIMER_MIN);
+        return configs.getConfig(Configs.TimerMin.name());
     }
 
     public String getState() {
