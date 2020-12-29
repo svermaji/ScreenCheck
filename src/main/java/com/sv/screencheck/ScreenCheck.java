@@ -16,14 +16,13 @@ import static com.sv.core.Constants.*;
 public class ScreenCheck {
 
     enum Configs {
-        AllowedMin, RewriteHours, TimerMin, State
+        AllowedMin, RewriteHours, TimerMin, OldTime, LastModified
     }
 
     private final MyLogger logger;
     private final DefaultConfigs configs;
 
-    private long oldTimeInMin;
-    private long lastModifiedTime;
+    private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
     private final Timer TIMER = new Timer();
 
     private boolean reset = false;
@@ -64,16 +63,13 @@ public class ScreenCheck {
     }
 
     public void init() {
-        readStateConfig();
+        allowedMin = configs.getLongConfig(Configs.AllowedMin.name());
+        rewriteHours = configs.getLongConfig(Configs.RewriteHours.name());
+        timerMin = configs.getLongConfig(Configs.TimerMin.name());
+        oldTimeInMin = configs.getIntConfig(Configs.OldTime.name());
+        lastModifiedTime = configs.getLongConfig(Configs.LastModified.name());
         shutDownRequired();
         resetVars();
-    }
-
-    private void readStateConfig() {
-        String state = configs.getConfig(Configs.State.name());
-        String[] vals = state.split(";");
-        oldTimeInMin = convertToLong(vals[0].split(COLON)[1]);
-        lastModifiedTime = convertToLong(vals[1].split(COLON)[1]);
     }
 
     private void resetVars() {
@@ -104,12 +100,12 @@ public class ScreenCheck {
         }
         saveConfig();
         if (reset) {
-	        logger.log("Resetting oldTimeInMin to 0");
+            logger.log("Resetting oldTimeInMin to 0");
             oldTimeInMin = 0;
         }
         logger.log("Reset required: " + reset);
 
-        if (oldTimeInMin >= convertToLong(Configs.AllowedMin)) {
+        if (oldTimeInMin >= configs.getLongConfig(Configs.AllowedMin.name())) {
             logger.log("Shutdown required: true");
             showShutDownScreen();
             runExitCommand();
@@ -123,15 +119,7 @@ public class ScreenCheck {
     }
 
     private long convertHoursToMin(Configs config) {
-        return TimeUnit.HOURS.toMinutes(convertToLong(config));
-    }
-
-    private long convertToLong(Configs config) {
-        return convertToLong(config);
-    }
-
-    private long convertToLong(String str) {
-        return Long.parseLong(str);
+        return TimeUnit.HOURS.toMinutes(configs.getIntConfig(config.name()));
     }
 
     private void runExitCommand() {
@@ -153,23 +141,22 @@ public class ScreenCheck {
     }
 
     public String getAllowedMin() {
-        return configs.getConfig(Configs.AllowedMin.name());
+        return allowedMin + "";
     }
 
     public String getRewriteHours() {
-        return configs.getConfig(Configs.RewriteHours.name());
+        return rewriteHours + "";
     }
 
     public String getTimerMin() {
-        return configs.getConfig(Configs.TimerMin.name());
+        return timerMin + "";
     }
 
-    public String getState() {
-        if (reset) {
-            return prepareFileString(0);
-        }
-
-        return prepareFileString();
+    public String getLastModified() {
+        return lastModifiedTime + "";
     }
 
+    public String getOldTime() {
+        return oldTimeInMin + "";
+    }
 }
