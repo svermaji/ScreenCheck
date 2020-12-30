@@ -5,7 +5,6 @@ import com.sv.core.config.DefaultConfigs;
 import com.sv.core.logger.MyLogger;
 
 import javax.swing.*;
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -86,13 +85,7 @@ public class ScreenCheck {
     }
 
     private void runExitCommand() {
-        if
-        try {
-            logger.log("Running screen check batch file");
-            Runtime.getRuntime().exec("screen-check.bat");
-        } catch (IOException e) {
-            logger.error(e);
-        }
+        Utils.runCmd("screen-check.bat", logger);
         saveConfig();
     }
 
