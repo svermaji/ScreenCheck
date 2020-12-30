@@ -86,6 +86,7 @@ public class ScreenCheck {
     }
 
     private void runExitCommand() {
+        if
         try {
             logger.log("Running screen check batch file");
             Runtime.getRuntime().exec("screen-check.bat");
