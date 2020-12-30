@@ -6,12 +6,9 @@ import com.sv.core.logger.MyLogger;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-
-import static com.sv.core.Constants.*;
 
 public class ScreenCheck {
 
@@ -21,10 +18,9 @@ public class ScreenCheck {
 
     private final MyLogger logger;
     private final DefaultConfigs configs;
-
-    private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
     private final Timer TIMER = new Timer();
 
+    private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
     private boolean reset = false;
 
     public static void main(String[] args) {
@@ -38,28 +34,8 @@ public class ScreenCheck {
         startTimer(this);
     }
 
-    private String prepareFileString() {
-        long currentM = getCurrentMillis();
-        long min = convertToMin(currentM - lastModifiedTime);
-
-        logger.log(String.format("CurrentTimeMilli = %s, lastModifiedTime = %s, result in min = %s, oldTimeInMin+min = %s",
-                getDateForLong(currentM), getDateForLong(lastModifiedTime), min, (oldTimeInMin + min)));
-
-        return prepareFileString(oldTimeInMin + min);
-    }
-
-    private String prepareFileString(long result) {
-        return new StringBuilder().append("oldTime:")
-                .append(result)
-                .append(SEMI_COLON).append("lastModified:").append(getCurrentMillis()).toString();
-    }
-
     private void saveConfig() {
         configs.saveConfig(this);
-    }
-
-    private String getDateForLong(long val) {
-        return val + " [" + new Date(val) + "]";
     }
 
     public void init() {
@@ -88,38 +64,25 @@ public class ScreenCheck {
         }, timer_min, timer_min);
     }
 
-    private long getCurrentMillis() {
-        return System.currentTimeMillis();
-    }
-
     private void shutDownRequired() {
-        long l = convertToMin(getCurrentMillis() - lastModifiedTime);
-        logger.log("Time spent since last modified in min is " + l);
-        if (l >= convertHoursToMin(Configs.RewriteHours)) {
-            reset = true;
-        }
+        reset = Utils.getTimeDiffMin(lastModifiedTime)
+                >= TimeUnit.HOURS.toMinutes(rewriteHours);
+
+        lastModifiedTime = Utils.getNowMillis();
         saveConfig();
+
+        logger.log("Reset required " + Utils.addBraces(reset));
         if (reset) {
             logger.log("Resetting oldTimeInMin to 0");
             oldTimeInMin = 0;
         }
-        logger.log("Reset required: " + reset);
 
-        if (oldTimeInMin >= configs.getLongConfig(Configs.AllowedMin.name())) {
-            logger.log("Shutdown required: true");
+        boolean result = oldTimeInMin >= allowedMin;
+        logger.log("Shutdown required: " + Utils.addBraces(result));
+        if (result) {
             showShutDownScreen();
             runExitCommand();
-        } else {
-            logger.log("Shutdown required: false");
         }
-    }
-
-    private long convertToMin(long millis) {
-        return TimeUnit.MILLISECONDS.toMinutes(millis);
-    }
-
-    private long convertHoursToMin(Configs config) {
-        return TimeUnit.HOURS.toMinutes(configs.getIntConfig(config.name()));
     }
 
     private void runExitCommand() {
