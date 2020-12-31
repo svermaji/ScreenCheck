@@ -64,12 +64,19 @@ public class ScreenCheck {
     }
 
     private void shutDownRequired() {
-        oldTimeInMin = oldTimeInMin + Utils.getTimeDiffMin(lastModifiedTime);
+        // only consider if time diff is nearby value of TimerMin
+        long diffMin = Utils.getTimeDiffMin(lastModifiedTime);
+        logger.log("LastModifiedTime difference in min " + Utils.addBraces(diffMin));
+        if (diffMin <= timerMin) {
+            oldTimeInMin = oldTimeInMin + diffMin;
+        }
         lastModifiedTime = Utils.getNowMillis();
 
         saveConfig();
 
-        reset = oldTimeInMin >= TimeUnit.HOURS.toMinutes(rewriteHours);
+        long rewriteMins = TimeUnit.HOURS.toMinutes(rewriteHours);
+        reset = oldTimeInMin >= rewriteMins
+                || diffMin >= rewriteMins;
         logger.log("Reset required " + Utils.addBraces(reset));
         if (reset) {
             logger.log("Resetting oldTimeInMin to 0");
