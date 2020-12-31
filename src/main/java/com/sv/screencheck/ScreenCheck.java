@@ -64,12 +64,12 @@ public class ScreenCheck {
     }
 
     private void shutDownRequired() {
-        reset = Utils.getTimeDiffMin(lastModifiedTime)
-                >= TimeUnit.HOURS.toMinutes(rewriteHours);
-
+        oldTimeInMin = oldTimeInMin + Utils.getTimeDiffMin(lastModifiedTime);
         lastModifiedTime = Utils.getNowMillis();
+
         saveConfig();
 
+        reset = oldTimeInMin >= TimeUnit.HOURS.toMinutes(rewriteHours);
         logger.log("Reset required " + Utils.addBraces(reset));
         if (reset) {
             logger.log("Resetting oldTimeInMin to 0");

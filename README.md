@@ -1,4 +1,4 @@
-# RunCommand
+# ScreenCheck
 Utility in Java to check how long a laptop should remain ON.
 
 ## Recent Changes<br>
