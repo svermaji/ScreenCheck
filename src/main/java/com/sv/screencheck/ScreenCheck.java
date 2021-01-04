@@ -8,6 +8,8 @@ import com.sv.email.Email;
 import com.sv.email.EmailDetails;
 
 import javax.swing.*;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -23,11 +25,11 @@ public class ScreenCheck {
     private final Timer TIMER = new Timer();
 
     private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
-    private boolean reset = false, sendEmail;
+    private boolean reset = false, shutdownReq = false, sendEmail;
     private EmailDetails details;
     private JFrame frame = null;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         new ScreenCheck();
     }
 
@@ -57,6 +59,7 @@ public class ScreenCheck {
 
     private void resetVars() {
         reset = false;
+        shutdownReq = false;
     }
 
     private void startTimer(ScreenCheck screenCheck) {
@@ -91,9 +94,9 @@ public class ScreenCheck {
         }
 
         saveConfig();
-        boolean result = oldTimeInMin >= allowedMin;
-        logger.log("Shutdown required: " + Utils.addBraces(result));
-        if (result) {
+        shutdownReq = oldTimeInMin >= allowedMin;
+        logger.log("Shutdown required: " + Utils.addBraces(shutdownReq));
+        if (shutdownReq) {
             showShutDownScreen();
         }
         sendEmail();
@@ -107,11 +110,23 @@ public class ScreenCheck {
                     .append("Hi")
                     .append(line)
                     .append(line)
-                    .append("Status for screen check.  Program started on: ")
+                    .append("Status for screen check on: ")
+                    .append(Utils.getHostname(logger))
+                    .append(line)
+                    .append(line)
+                    .append("Program started on: ")
                     .append(Utils.getFormattedDate(lastModifiedTime))
                     .append(line)
                     .append("Time spent till now in minutes is: ")
                     .append(oldTimeInMin)
+                    .append(", of limit: ")
+                    .append(getAllowedMin())
+                    .append(line)
+                    .append("Reset flag value: ")
+                    .append(reset)
+                    .append(line)
+                    .append("Shutdown flag value: ")
+                    .append(shutdownReq)
                     .append(line)
                     .append(line)
                     .append("Thanks")
