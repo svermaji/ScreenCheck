@@ -50,7 +50,7 @@ public class ScreenCheck {
         lastModifiedTime = configs.getLongConfig(Configs.LastModified.name());
         sendEmail = configs.getBooleanConfig(Configs.SendEmail.name());
         String email = "temptempac1@gmail.com";
-        details = new EmailDetails(email, email, "Screen check status: " + Utils.getFormattedDate());
+        details = new EmailDetails(email, "Screen check status: " + Utils.getFormattedDate());
         shutDownRequired();
         resetVars();
     }
