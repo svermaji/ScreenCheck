@@ -21,6 +21,7 @@ public class ScreenCheck {
 
     private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
     private boolean reset = false;
+    private JFrame frame = null;
 
     public static void main(String[] args) {
         new ScreenCheck();
@@ -66,13 +67,12 @@ public class ScreenCheck {
     private void shutDownRequired() {
         // only consider if time diff is nearby value of TimerMin
         long diffMin = Utils.getTimeDiffMin(lastModifiedTime);
-        logger.log("LastModifiedTime difference in min " + Utils.addBraces(diffMin));
+        logger.log("LastModifiedTime [" + Utils.getFormattedDate(lastModifiedTime)
+                + "] difference in min " + Utils.addBraces(diffMin));
         if (diffMin <= timerMin) {
             oldTimeInMin = oldTimeInMin + diffMin;
         }
         lastModifiedTime = Utils.getNowMillis();
-
-        saveConfig();
 
         long rewriteMins = TimeUnit.HOURS.toMinutes(rewriteHours);
         reset = oldTimeInMin >= rewriteMins
@@ -83,25 +83,28 @@ public class ScreenCheck {
             oldTimeInMin = 0;
         }
 
+        saveConfig();
         boolean result = oldTimeInMin >= allowedMin;
         logger.log("Shutdown required: " + Utils.addBraces(result));
         if (result) {
             showShutDownScreen();
-            runExitCommand();
         }
     }
 
-    private void runExitCommand() {
+    private void runAppCommand() {
         Utils.runCmd("screen-check.bat", logger);
         saveConfig();
     }
 
     private void showShutDownScreen() {
-        JFrame frame = new JFrame();
-        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-        frame.setUndecorated(true);
-        frame.setVisible(true);
-        frame.setAlwaysOnTop(true);
+        if (frame == null) {
+            frame = new JFrame();
+            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            frame.setUndecorated(true);
+            frame.setVisible(true);
+            frame.setAlwaysOnTop(true);
+            runAppCommand();
+        }
     }
 
     public String getAllowedMin() {
