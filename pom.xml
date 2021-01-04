@@ -11,4 +11,12 @@
     <artifactId>screencheck</artifactId>
     <version>1.0</version>
     <name>Screen Check Utility</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.sv</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0</version>
+        </dependency>
+    </dependencies>
 </project>
