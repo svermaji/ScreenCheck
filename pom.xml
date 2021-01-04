@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>com.sv</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>email</artifactId>
             <version>1.0</version>
         </dependency>
     </dependencies>

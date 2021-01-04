@@ -1,8 +1,11 @@
 package com.sv.screencheck;
 
+
 import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
 import com.sv.core.logger.MyLogger;
+import com.sv.email.Email;
+import com.sv.email.EmailDetails;
 
 import javax.swing.*;
 import java.util.Timer;
@@ -12,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 public class ScreenCheck {
 
     enum Configs {
-        AllowedMin, RewriteHours, TimerMin, OldTime, LastModified
+        AllowedMin, RewriteHours, TimerMin, OldTime, LastModified, SendEmail
     }
 
     private final MyLogger logger;
@@ -20,7 +23,8 @@ public class ScreenCheck {
     private final Timer TIMER = new Timer();
 
     private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
-    private boolean reset = false;
+    private boolean reset = false, sendEmail;
+    private EmailDetails details;
     private JFrame frame = null;
 
     public static void main(String[] args) {
@@ -44,6 +48,9 @@ public class ScreenCheck {
         timerMin = configs.getLongConfig(Configs.TimerMin.name());
         oldTimeInMin = configs.getIntConfig(Configs.OldTime.name());
         lastModifiedTime = configs.getLongConfig(Configs.LastModified.name());
+        sendEmail = configs.getBooleanConfig(Configs.SendEmail.name());
+        String email = "temptempac1@gmail.com";
+        details = new EmailDetails(email, email, "Screen check status: " + Utils.getFormattedDate());
         shutDownRequired();
         resetVars();
     }
@@ -89,6 +96,30 @@ public class ScreenCheck {
         if (result) {
             showShutDownScreen();
         }
+        sendEmail();
+    }
+
+    private void sendEmail() {
+        logger.log("Send email check: " + Utils.addBraces(sendEmail));
+        if (sendEmail) {
+            String line = System.lineSeparator();
+            String body = new StringBuilder()
+                    .append("Hi")
+                    .append(line)
+                    .append(line)
+                    .append("Status for screen check.  Program started on: ")
+                    .append(Utils.getFormattedDate(lastModifiedTime))
+                    .append(line)
+                    .append("Time spent till now in minutes is: ")
+                    .append(oldTimeInMin)
+                    .append(line)
+                    .append(line)
+                    .append("Thanks")
+                    .append(line)
+                    .append("ScreenCheck Team").toString();
+            details.setBody(body);
+            Email.send(details, true);
+        }
     }
 
     private void runAppCommand() {
@@ -125,5 +156,9 @@ public class ScreenCheck {
 
     public String getOldTime() {
         return oldTimeInMin + "";
+    }
+
+    public String getSendEmail() {
+        return sendEmail + "";
     }
 }
