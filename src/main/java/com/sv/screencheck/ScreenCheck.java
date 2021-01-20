@@ -8,8 +8,6 @@ import com.sv.email.Email;
 import com.sv.email.EmailDetails;
 
 import javax.swing.*;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +27,7 @@ public class ScreenCheck {
     private EmailDetails details;
     private JFrame frame = null;
 
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) {
         new ScreenCheck();
     }
 
@@ -106,6 +104,7 @@ public class ScreenCheck {
         logger.log("Send email check: " + Utils.addBraces(sendEmail));
         if (sendEmail) {
             String line = System.lineSeparator();
+            long dt = lastModifiedTime + TimeUnit.MINUTES.toMillis(allowedMin - oldTimeInMin);
             String body = new StringBuilder()
                     .append("Hi")
                     .append(line)
@@ -114,8 +113,11 @@ public class ScreenCheck {
                     .append(Utils.getHostname(logger))
                     .append(line)
                     .append(line)
-                    .append("Program started on: ")
+                    .append("Machine time: ")
                     .append(Utils.getFormattedDate(lastModifiedTime))
+                    .append(line)
+                    .append("Estimated shutdown time: ")
+                    .append(Utils.getFormattedDate(dt))
                     .append(line)
                     .append("Time spent till now in minutes is: ")
                     .append(oldTimeInMin)
