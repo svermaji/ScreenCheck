@@ -1,2 +1,2 @@
 call close-chrome.bat
-call bye.bat
+call lock-w10.bat

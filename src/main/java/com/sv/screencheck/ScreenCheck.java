@@ -66,7 +66,7 @@ public class ScreenCheck {
         TIMER.schedule(new TimerTask() {
             @Override
             public void run() {
-                logger.log("Timer activated...");
+                logger.info("Timer activated...");
                 screenCheck.init();
             }
         }, timer_min, timer_min);
@@ -75,7 +75,7 @@ public class ScreenCheck {
     private void shutDownRequired() {
         // only consider if time diff is nearby value of TimerMin
         long diffMin = Utils.getTimeDiffMin(lastModifiedTime);
-        logger.log("LastModifiedTime [" + Utils.getFormattedDate(lastModifiedTime)
+        logger.info("LastModifiedTime [" + Utils.getFormattedDate(lastModifiedTime)
                 + "] difference in min " + Utils.addBraces(diffMin));
         if (diffMin <= timerMin) {
             oldTimeInMin = oldTimeInMin + diffMin;
@@ -85,15 +85,15 @@ public class ScreenCheck {
         long rewriteMins = TimeUnit.HOURS.toMinutes(rewriteHours);
         reset = oldTimeInMin >= rewriteMins
                 || diffMin >= rewriteMins;
-        logger.log("Reset required " + Utils.addBraces(reset));
+        logger.info("Reset required " + Utils.addBraces(reset));
         if (reset) {
-            logger.log("Resetting oldTimeInMin to 0");
+            logger.info("Resetting oldTimeInMin to 0");
             oldTimeInMin = 0;
         }
 
         saveConfig();
         shutdownReq = oldTimeInMin >= allowedMin;
-        logger.log("Shutdown required: " + Utils.addBraces(shutdownReq));
+        logger.info("Shutdown required: " + Utils.addBraces(shutdownReq));
         if (shutdownReq) {
             showShutDownScreen();
         }
@@ -101,7 +101,7 @@ public class ScreenCheck {
     }
 
     private void sendEmail() {
-        logger.log("Send email check: " + Utils.addBraces(sendEmail));
+        logger.info("Send email check: " + Utils.addBraces(sendEmail));
         if (sendEmail) {
             String line = System.lineSeparator();
             long dt = lastModifiedTime + TimeUnit.MINUTES.toMillis(allowedMin - oldTimeInMin);
