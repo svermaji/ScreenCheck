@@ -1,6 +1,7 @@
 package com.sv.screencheck;
 
 
+import com.sv.core.Constants;
 import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
 import com.sv.core.exception.AppException;
@@ -117,9 +118,9 @@ public class ScreenCheck {
         }
         logger.info("takeAction " + Utils.addBraces(takeAction));
         if (takeAction) {
+            sendEmail();
             startAction();
         }
-        sendEmail();
     }
 
     private boolean isTimeForAction() {
@@ -153,8 +154,13 @@ public class ScreenCheck {
                     .append("Machine time: ")
                     .append(Utils.getFormattedDate(lastModifiedTime))
                     .append(line)
-                    .append("Estimated shutdown time: ")
+                    .append("Estimated take action time: ")
                     .append(Utils.getFormattedDate(dt))
+                    .append(line)
+                    .append("Action mode and time: ")
+                    .append(actionMode)
+                    .append(Constants.F_SLASH)
+                    .append(actionTime)
                     .append(line)
                     .append("Time spent till now in minutes is: ")
                     .append(oldTimeInMin)
@@ -164,7 +170,7 @@ public class ScreenCheck {
                     .append("Reset flag value: ")
                     .append(reset)
                     .append(line)
-                    .append("Shutdown flag value: ")
+                    .append("Take action flag value: ")
                     .append(takeAction)
                     .append(line)
                     .append(line)
