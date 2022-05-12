@@ -181,9 +181,13 @@ public class ScreenCheck {
     }
 
     private void runAppCommand() {
-        Utils.runCmd("cmds/screen-check.bat", logger);
+        String dir = Utils.getCurrentDir();
+        dir = Utils.removeDotFromEndOfPath(dir);
+        Utils.runCmd(dir + "cmds/screen-check.bat " + dir + "cmds/", logger);
         saveConfig();
         logger.info("Exiting application after taking action.");
+        // time to run cmd
+        Utils.sleep1Sec();
         System.exit(0);
     }
 
