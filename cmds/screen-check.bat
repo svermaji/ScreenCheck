@@ -1,2 +1,2 @@
-call close-chrome.bat
-call lock-w10.bat
+call cmds/close-chrome.bat
+call cmds/lock-w10.bat

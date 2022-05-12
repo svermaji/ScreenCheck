@@ -8,6 +8,7 @@ import com.sv.email.Email;
 import com.sv.email.EmailDetails;
 
 import javax.swing.*;
+import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -15,7 +16,11 @@ import java.util.concurrent.TimeUnit;
 public class ScreenCheck {
 
     enum Configs {
-        AllowedMin, RewriteHours, TimerMin, OldTime, LastModified, SendEmail
+        AllowedMin, RewriteHours, TimerMin, OldTime, LastModified, SendEmail, ActionTime, ActionMode
+    }
+
+    enum ActionMode {
+        time, interval
     }
 
     private final MyLogger logger;
@@ -23,7 +28,8 @@ public class ScreenCheck {
     private final Timer TIMER = new Timer();
 
     private long oldTimeInMin, lastModifiedTime, allowedMin, rewriteHours, timerMin;
-    private boolean reset = false, shutdownReq = false, sendEmail;
+    private String actionTime, actionMode;
+    private boolean reset = false, takeAction = false, sendEmail;
     private EmailDetails details;
     private JFrame frame = null;
 
@@ -49,15 +55,18 @@ public class ScreenCheck {
         oldTimeInMin = configs.getIntConfig(Configs.OldTime.name());
         lastModifiedTime = configs.getLongConfig(Configs.LastModified.name());
         sendEmail = configs.getBooleanConfig(Configs.SendEmail.name());
+        // in format oh HH:mm, action will be taken at that time
+        actionTime = configs.getConfig(Configs.ActionTime.name());
+        actionMode = configs.getConfig(Configs.ActionMode.name());
         String email = "temptempac1@gmail.com";
         details = new EmailDetails(email, "Screen check status: " + Utils.getFormattedDate());
-        shutDownRequired();
+        takeAction();
         resetVars();
     }
 
     private void resetVars() {
         reset = false;
-        shutdownReq = false;
+        takeAction = false;
     }
 
     private void startTimer(ScreenCheck screenCheck) {
@@ -72,7 +81,15 @@ public class ScreenCheck {
         }, timer_min, timer_min);
     }
 
-    private void shutDownRequired() {
+    private boolean isTimeMode() {
+        return actionMode.equals(ActionMode.time.name());
+    }
+
+    private boolean isIntervalMode() {
+        return actionMode.equals(ActionMode.interval.name());
+    }
+
+    private void takeAction() {
         // only consider if time diff is nearby value of TimerMin
         long diffMin = Utils.getTimeDiffMin(lastModifiedTime);
         logger.info("LastModifiedTime [" + Utils.getFormattedDate(lastModifiedTime)
@@ -92,12 +109,30 @@ public class ScreenCheck {
         }
 
         saveConfig();
-        shutdownReq = oldTimeInMin >= allowedMin;
-        logger.info("Shutdown required: " + Utils.addBraces(shutdownReq));
-        if (shutdownReq) {
-            showShutDownScreen();
+        takeAction = isIntervalMode() && oldTimeInMin >= allowedMin;
+        if (!takeAction) {
+            takeAction = isTimeMode() && isTimeForAction();
+        }
+        logger.info("takeAction " + Utils.addBraces(takeAction));
+        if (takeAction) {
+            startAction();
         }
         sendEmail();
+    }
+
+    private boolean isTimeForAction() {
+        String[] time = actionTime.split(":");
+        boolean result = false;
+        LocalTime nw = LocalTime.now();
+        if (time.length == 1) {
+            result = nw.getHour() >= Integer.parseInt(time[0]);
+        }
+        if (time.length > 1) {
+            result = nw.getHour() >= Integer.parseInt(time[0]) &&
+                    nw.getMinute() >= Integer.parseInt(time[1]);
+        }
+        logger.info("Result for [" + nw.getHour() + "], [" + nw.getMinute() + "] is [" + result + "]");
+        return result;
     }
 
     private void sendEmail() {
@@ -128,7 +163,7 @@ public class ScreenCheck {
                     .append(reset)
                     .append(line)
                     .append("Shutdown flag value: ")
-                    .append(shutdownReq)
+                    .append(takeAction)
                     .append(line)
                     .append(line)
                     .append("Thanks")
@@ -140,19 +175,20 @@ public class ScreenCheck {
     }
 
     private void runAppCommand() {
-        Utils.runCmd("screen-check.bat", logger);
+        Utils.runCmd("cmds/screen-check.bat", logger);
         saveConfig();
+        System.exit(0);
     }
 
-    private void showShutDownScreen() {
-        if (frame == null) {
+    private void startAction() {
+        /*if (frame == null) {
             frame = new JFrame();
             frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             frame.setUndecorated(true);
             frame.setVisible(true);
             frame.setAlwaysOnTop(true);
-            runAppCommand();
-        }
+        }*/
+        runAppCommand();
     }
 
     public String getAllowedMin() {
@@ -177,5 +213,13 @@ public class ScreenCheck {
 
     public String getSendEmail() {
         return sendEmail + "";
+    }
+
+    public String getActionTime() {
+        return actionTime + "";
+    }
+
+    public String getActionMode() {
+        return actionMode;
     }
 }
