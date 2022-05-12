@@ -3,11 +3,13 @@ package com.sv.screencheck;
 
 import com.sv.core.Utils;
 import com.sv.core.config.DefaultConfigs;
+import com.sv.core.exception.AppException;
 import com.sv.core.logger.MyLogger;
 import com.sv.email.Email;
 import com.sv.email.EmailDetails;
 
 import javax.swing.*;
+import java.net.ConnectException;
 import java.time.LocalTime;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -170,7 +172,11 @@ public class ScreenCheck {
                     .append(line)
                     .append("ScreenCheck Team").toString();
             details.setBody(body);
-            Email.send(details, true);
+            try {
+                Email.send(details, true);
+            } catch (AppException e) {
+                logger.error("Unable to send email. ", e);
+            }
         }
     }
 
