@@ -183,6 +183,7 @@ public class ScreenCheck {
     private void runAppCommand() {
         Utils.runCmd("cmds/screen-check.bat", logger);
         saveConfig();
+        logger.info("Exiting application after taking action.");
         System.exit(0);
     }
 
