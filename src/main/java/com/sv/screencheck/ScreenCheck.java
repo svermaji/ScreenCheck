@@ -118,7 +118,7 @@ public class ScreenCheck {
         }
         logger.info("takeAction " + Utils.addBraces(takeAction));
         if (takeAction) {
-            sendEmail();
+            //sendEmail();
             startAction();
         }
     }
