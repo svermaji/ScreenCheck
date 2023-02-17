@@ -22,8 +22,14 @@ public class ScreenCheck {
         AllowedMin, RewriteHours, TimerMin, OldTime, LastModified, SendEmail, ActionTime, ActionMode
     }
 
+    /**
+     * <p>time</p> - Will allow screen to check at specific time in hh:mm format
+     * <p>interval</p> - Will allow screen to check after number of minutes configured
+     * <p>mixed</p> - Will allow screen to check for both above
+     *
+     */
     enum ActionMode {
-        time, interval
+        time, interval, mixed
     }
 
     private final MyLogger logger;
@@ -92,6 +98,10 @@ public class ScreenCheck {
         return actionMode.equals(ActionMode.interval.name());
     }
 
+    private boolean isMixedMode() {
+        return actionMode.equals(ActionMode.mixed.name());
+    }
+
     private void takeAction() {
         // only consider if time diff is nearby value of TimerMin
         long diffMin = Utils.getTimeDiffMin(lastModifiedTime);
@@ -112,14 +122,18 @@ public class ScreenCheck {
         }
 
         saveConfig();
-        takeAction = isIntervalMode() && oldTimeInMin >= allowedMin;
-        if (!takeAction) {
-            takeAction = isTimeMode() && isTimeForAction();
-        }
+        checkIfActionToTake();
         logger.info("takeAction " + Utils.addBraces(takeAction));
         if (takeAction) {
             //sendEmail();
             startAction();
+        }
+    }
+
+    private void checkIfActionToTake() {
+        takeAction = (isIntervalMode() || isMixedMode()) && oldTimeInMin >= allowedMin;
+        if (!takeAction) {
+            takeAction = (isTimeMode() || isMixedMode()) && isTimeForAction();
         }
     }
 
