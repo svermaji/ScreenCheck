@@ -132,9 +132,13 @@ public class ScreenCheck {
 
     private void checkIfActionToTake() {
         takeAction = (isIntervalMode() || isMixedMode()) && oldTimeInMin >= allowedMin;
+        boolean im = takeAction;
+        boolean tm = false;
         if (!takeAction) {
             takeAction = (isTimeMode() || isMixedMode()) && isTimeForAction();
+            tm = takeAction;
         }
+        logger.info("For interval/mixed mode, takeAction [" + im + "] and for time/mixed mode [" + tm + "]");
     }
 
     private boolean isTimeForAction() {
